@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Traffic Law & Challan Assistant</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,500,0,0" />
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Floating Mode Switcher Bar -->
+  <div class="view-mode-bar" id="viewModeBar">
+    <div class="mode-pills">
+      <button class="mode-pill active" id="btnModeSingle" onclick="setViewMode('single')">
+        <span class="material-symbols-rounded">devices</span> Single App View
+      </button>
+      <button class="mode-pill" id="btnModeGrid" onclick="setViewMode('grid')">
+        <span class="material-symbols-rounded">grid_view</span> 2×2 All Screens (Mockup View)
+      </button>
+    </div>
+    <div class="mode-hint">Toggle between interactive screen and exact 4-screen showcase</div>
+  </div>
+
+  <!-- SINGLE APP WRAPPER -->
+  <div class="app-container" id="singleAppContainer">
+    <!-- Top Navigation Header -->
+    <header class="app-header">
+      <div class="header-left">
+        <div class="brand-logo" onclick="switchTab('ask')">
+          <div class="traffic-light-icon">
+            <span class="light red"></span>
+            <span class="light yellow"></span>
+            <span class="light green"></span>
+          </div>
+          <span class="brand-text">Traffic Law &amp; Challan Assistant</span>
+        </div>
+      </div>
+
+      <nav class="header-nav">
+        <button class="nav-tab active" id="nav-ask" onclick="switchTab('ask')">
+          <span class="material-symbols-rounded nav-icon">home</span>
+          <span>Ask</span>
+        </button>
+        <button class="nav-tab" id="nav-guides" onclick="switchTab('guides')">
+          <span class="material-symbols-rounded nav-icon">menu_book</span>
+          <span>Quick Guides</span>
+        </button>
+        <button class="nav-tab" id="nav-fines" onclick="switchTab('fines')">
+          <span class="material-symbols-rounded nav-icon">search</span>
+          <span>Fine Lookup</span>
+        </button>
+        <button class="nav-tab" id="nav-pdf" onclick="switchTab('pdf')">
+          <span class="material-symbols-rounded nav-icon">picture_as_pdf</span>
+          <span>Upload PDF</span>
+        </button>
+        <button class="nav-tab" id="nav-about" onclick="switchTab('about')">
+          <span class="material-symbols-rounded nav-icon">info</span>
+          <span>About</span>
+        </button>
+      </nav>
+
+      <div class="header-right">
+        <div class="dropdown-wrap" id="stateDropdownWrap">
+          <button class="states-btn" id="statesBtn" onclick="toggleStateDropdown()">
+            <span class="material-symbols-rounded">menu_book</span>
+            <span id="selectedStateLabel">States (1)</span>
+            <span class="material-symbols-rounded arrow-icon">keyboard_arrow_down</span>
+          </button>
+          <div class="states-menu" id="statesMenu">
+            <div class="menu-title">Select State for Fines</div>
+            <label class="state-option">
+              <input type="checkbox" id="stateTN" checked onchange="updateSelectedState()">
+              <span>Tamil Nadu (2022 Gazette)</span>
+            </label>
+            <label class="state-option">
+              <input type="checkbox" id="stateKA" onchange="updateSelectedState()">
+              <span>Karnataka (2019 Gazette)</span>
+            </label>
+            <label class="state-option">
+              <input type="checkbox" id="stateMH" onchange="updateSelectedState()">
+              <span>Maharashtra (Central Act)</span>
+            </label>
+            <label class="state-option">
+              <input type="checkbox" id="stateDL" onchange="updateSelectedState()">
+              <span>Delhi (Central Act)</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT VIEWS -->
+    <main class="app-main">
+      
+      <!-- SCREEN 1: ASK -->
+      <section class="screen-view active" id="screen-ask">
+        <div class="hero-section">
+          <div class="hero-content">
+            <div class="hero-badge">
+              <span class="badge-icon">🛡️</span>
+              <span>Your Traffic Law Assistant</span>
+            </div>
+            <h1 class="hero-title">Your <span class="highlight-blue">Traffic Law</span><br>Assistant</h1>
+            <p class="hero-subtitle">
+              Clear answers on traffic fines, licence renewal, e-challans and what to do after an accident, based on official and trusted documents.
+            </p>
+
+            <!-- Search Card -->
+            <div class="ask-card">
+              <div class="input-row">
+                <div class="chat-bubble-badge">
+                  <span class="material-symbols-rounded">chat_bubble</span>
+                </div>
+                <input 
+                  type="text" 
+                  class="ask-input" 
+                  id="askInput" 
+                  placeholder="Ask your question about traffic rules, fines, licence, e-challan..."
+                  onkeydown="if(event.key==='Enter') executeAsk()"
+                />
+                <button class="mic-btn" title="Voice Input" onclick="toggleVoiceInput()">
+                  <span class="material-symbols-rounded">mic</span>
+                </button>
+              </div>
+              <div class="submit-row" style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+                <button class="btn-primary btn-get-answer" id="btnGetAnswer" onclick="executeAsk()">
+                  <span class="material-symbols-rounded">send</span>
+                  <span>Get Answer</span>
+                </button>
+                <button class="btn-primary" style="background:#FFFFFF;color:#1F5FE0;border:1px solid #C9D9FF;box-shadow:none;padding:11px 24px;" onclick="switchTab('pdf')">
+                  <span class="material-symbols-rounded">picture_as_pdf</span>
+                  <span>Upload PDF / Challan</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Try Examples -->
+            <div class="examples-section">
+              <div class="examples-label">Try these examples:</div>
+              <div class="examples-grid">
+                <div class="example-card" onclick="selectExample('What is the fine for not wearing a helmet?')">
+                  <div class="example-icon-tile icon-blue">
+                    <span class="material-symbols-rounded">sports_motorsports</span>
+                  </div>
+                  <span class="example-text">What is the fine for not wearing a helmet?</span>
+                </div>
+
+                <div class="example-card" onclick="selectExample('How to renew my driving licence?')">
+                  <div class="example-icon-tile icon-green">
+                    <span class="material-symbols-rounded">description</span>
+                  </div>
+                  <span class="example-text">How to renew my driving licence?</span>
+                </div>
+
+                <div class="example-card" onclick="selectExample('What to do after an accident?')">
+                  <div class="example-icon-tile icon-red">
+                    <span class="material-symbols-rounded">directions_car</span>
+                  </div>
+                  <span class="example-text">What to do after an accident?</span>
+                </div>
+
+                <div class="example-card" onclick="selectExample('How to pay an e-challan?')">
+                  <div class="example-icon-tile icon-purple">
+                    <span class="material-symbols-rounded">receipt_long</span>
+                  </div>
+                  <span class="example-text">How to pay an e-challant?</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Footer Filter Chips -->
+            <div class="filter-chips-row">
+              <span class="showing-label">Showing:</span>
+              <button class="chip chip-central active">Central</button>
+              <button class="chip chip-state" id="chipStateTag">Tamil Nadu</button>
+              <span class="disclaimer-text">General information, not legal advice. State fines may differ.</span>
+            </div>
+
+            <!-- Answer Box (Dynamic Result) -->
+            <div class="answer-card" id="answerResultBox" style="display: none;">
+              <div class="answer-header">
+                <div class="answer-icon">
+                  <span class="material-symbols-rounded">smart_toy</span>
+                </div>
+                <div class="answer-title-wrap">
+                  <div class="answer-query" id="answerQueryDisplay"></div>
+                  <div class="answer-status">Verified from official Motor Vehicles Act, 1988 (as amended in 2019)</div>
+                </div>
+              </div>
+              <div class="answer-body" id="answerContentDisplay"></div>
+              <div class="answer-sources" id="answerSourcesDisplay"></div>
+            </div>
+
+          </div>
+
+          <!-- Hero Illustration Graphic -->
+          <div class="hero-graphic">
+            <div class="graphic-img-wrapper">
+              <img src="assets/hero.jpg" alt="Traffic light and car" class="hero-image">
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 2: QUICK GUIDES -->
+      <section class="screen-view" id="screen-guides">
+        <div class="page-title-banner">
+          <div class="title-icon-circle">
+            <span class="material-symbols-rounded">menu_book</span>
+          </div>
+          <div class="title-text-group">
+            <h2 class="page-title">Quick Guides</h2>
+            <div class="page-subtitle">Get instant answers to common traffic law topics</div>
+          </div>
+        </div>
+
+        <div class="guides-grid">
+          <!-- Card 1 -->
+          <div class="guide-card">
+            <div class="guide-icon-box icon-red">
+              <span class="material-symbols-rounded">car_crash</span>
+            </div>
+            <h3 class="guide-title">After an Accident</h3>
+            <p class="guide-desc">What to do, Good Samaritan protection, hospital duties</p>
+            <button class="btn-guide-outline" onclick="openGuideModal(0)">View Guide &rarr;</button>
+          </div>
+
+          <!-- Card 2 -->
+          <div class="guide-card">
+            <div class="guide-icon-box icon-green">
+              <span class="material-symbols-rounded">badge</span>
+            </div>
+            <h3 class="guide-title">Renew My Licence</h3>
+            <p class="guide-desc">Validity, renewal window, documents required</p>
+            <button class="btn-guide-outline" onclick="openGuideModal(1)">View Guide &rarr;</button>
+          </div>
+
+          <!-- Card 3 -->
+          <div class="guide-card">
+            <div class="guide-icon-box icon-blue">
+              <span class="material-symbols-rounded">receipt_long</span>
+            </div>
+            <h3 class="guide-title">E-Challan Process</h3>
+            <p class="guide-desc">How to pay, contest, virtual court, unpaid challans</p>
+            <button class="btn-guide-outline" onclick="openGuideModal(2)">View Guide &rarr;</button>
+          </div>
+
+          <!-- Card 4 -->
+          <div class="guide-card">
+            <div class="guide-icon-box icon-purple">
+              <span class="material-symbols-rounded">menu_book</span>
+            </div>
+            <h3 class="guide-title">Traffic Rules &amp; Fines</h3>
+            <p class="guide-desc">Common offences and penalties under the 2019 Act</p>
+            <button class="btn-guide-outline" onclick="switchTab('fines')">View Guide &rarr;</button>
+          </div>
+
+          <!-- Card 5 -->
+          <div class="guide-card">
+            <div class="guide-icon-box icon-orange">
+              <span class="material-symbols-rounded">sports_motorsports</span>
+            </div>
+            <h3 class="guide-title">Helmet &amp; Safety Gear</h3>
+            <p class="guide-desc">Rules, fines and requirements</p>
+            <button class="btn-guide-outline" onclick="openGuideModal(4)">View Guide &rarr;</button>
+          </div>
+
+          <!-- Card 6 -->
+          <div class="guide-card">
+            <div class="guide-icon-box icon-teal">
+              <span class="material-symbols-rounded">airline_seat_recline_normal</span>
+            </div>
+            <h3 class="guide-title">Seat Belt Rules</h3>
+            <p class="guide-desc">When required and penalties</p>
+            <button class="btn-guide-outline" onclick="openGuideModal(5)">View Guide &rarr;</button>
+          </div>
+
+          <!-- Card 7 -->
+          <div class="guide-card">
+            <div class="guide-icon-box icon-pink">
+              <span class="material-symbols-rounded">wine_bar</span>
+            </div>
+            <h3 class="guide-title">Drunken Driving</h3>
+            <p class="guide-desc">Fines under Section 185 and legal limits</p>
+            <button class="btn-guide-outline" onclick="openGuideModal(6)">View Guide &rarr;</button>
+          </div>
+
+          <!-- Card 8 -->
+          <div class="guide-card">
+            <div class="guide-icon-box icon-amber">
+              <span class="material-symbols-rounded">no_crash</span>
+            </div>
+            <h3 class="guide-title">Driving without Licence</h3>
+            <p class="guide-desc">Penalties and consequences</p>
+            <button class="btn-guide-outline" onclick="openGuideModal(7)">View Guide &rarr;</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 3: FINE LOOKUP -->
+      <section class="screen-view" id="screen-fines">
+        <div class="page-title-banner">
+          <div class="title-icon-circle">
+            <span class="material-symbols-rounded">search</span>
+          </div>
+          <div class="title-text-group">
+            <h2 class="page-title">Traffic Fine Lookup</h2>
+            <div class="page-subtitle">Search fines by offence or section number</div>
+          </div>
+        </div>
+
+        <!-- Search Bar Row -->
+        <div class="fine-search-row">
+          <div class="fine-input-box">
+            <span class="material-symbols-rounded search-icon-left">search</span>
+            <input 
+              type="text" 
+              id="fineSearchInput" 
+              class="fine-input" 
+              placeholder="Search offence (e.g., helmet, drunk driving) or section number..."
+              oninput="filterFinesTable()"
+            />
+          </div>
+          <button class="btn-primary btn-search-fine" onclick="filterFinesTable()">
+            <span class="material-symbols-rounded">search</span>
+            <span>Search</span>
+          </button>
+        </div>
+
+        <!-- Table Container -->
+        <div class="table-card">
+          <table class="fine-table">
+            <thead>
+              <tr>
+                <th style="width: 45px;">#</th>
+                <th style="width: 32%;">Offence</th>
+                <th style="width: 15%;">Section</th>
+                <th style="width: 15%;">Fine (₹)</th>
+                <th>Other Penalty</th>
+              </tr>
+            </thead>
+            <tbody id="finesTableBody">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+        <div class="table-caption">
+          Central-law amounts (Motor Vehicles Act, 1988 as amended in 2019), checked against official Act text. States can notify different amounts.
+        </div>
+      </section>
+
+      <!-- SCREEN: PDF UPLOAD & RETRIEVAL -->
+      <section class="screen-view" id="screen-pdf">
+        <div class="page-title-banner">
+          <div class="title-icon-circle">
+            <span class="material-symbols-rounded">picture_as_pdf</span>
+          </div>
+          <div class="title-text-group">
+            <h2 class="page-title">Upload PDF &amp; Document Retrieval</h2>
+            <div class="page-subtitle">Upload an e-challan, police notice, or traffic document to retrieve legal sections and fine details</div>
+          </div>
+        </div>
+
+        <div class="pdf-upload-container" style="background:#FFFFFF;border:1px solid var(--border-card);border-radius:var(--radius-card);padding:28px;box-shadow:var(--shadow-card);margin-bottom:24px;">
+          <div class="drop-zone" style="border:2px dashed #C9D9FF;border-radius:14px;padding:36px 20px;text-align:center;background:#F8FAFD;cursor:pointer;" onclick="document.getElementById('pdfFileInput').click()">
+            <span class="material-symbols-rounded" style="font-size:3rem;color:#1F5FE0;margin-bottom:8px;">upload_file</span>
+            <h3 style="font-size:1.15rem;font-weight:700;color:#14213D;margin-bottom:6px;">Drag &amp; drop your traffic PDF document here</h3>
+            <p style="font-size:0.86rem;color:#64748B;margin-bottom:14px;">Supports PDF, TXT, or scanned images up to 10MB</p>
+            <input type="file" id="pdfFileInput" accept=".pdf,.txt,.png,.jpg,.jpeg" style="display:none;" onchange="handleFileUpload(event)">
+            <button class="btn-primary" style="padding:8px 24px;">Browse PDF File</button>
+          </div>
+
+          <div style="margin-top:20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+            <span style="font-size:0.88rem;font-weight:700;color:#14213D;">Or test with sample documents:</span>
+            <button class="btn-guide-outline" style="width:auto;padding:6px 14px;" onclick="loadSampleDoc('helmet')">📑 Helmet Violation Notice (Sec 194D)</button>
+            <button class="btn-guide-outline" style="width:auto;padding:6px 14px;" onclick="loadSampleDoc('drunk')">📑 Drunken Driving Summons (Sec 185)</button>
+            <button class="btn-guide-outline" style="width:auto;padding:6px 14px;" onclick="loadSampleDoc('speed')">📑 Overspeeding E-Challan (Sec 183)</button>
+          </div>
+        </div>
+
+        <!-- Retrieved PDF Information Output -->
+        <div id="pdfResultsWrap" style="display:none;">
+          <div class="answer-card" style="margin-top:0;margin-bottom:24px;">
+            <div class="answer-header">
+              <div class="answer-icon" style="background:#E6EEFF;color:#1F5FE0;">
+                <span class="material-symbols-rounded">description</span>
+              </div>
+              <div class="answer-title-wrap">
+                <div class="answer-query" id="pdfDocName">Document Name</div>
+                <div class="answer-status" id="pdfDocStatus">Successfully parsed &amp; matched with official Motor Vehicles Act, 1988</div>
+              </div>
+            </div>
+            
+            <div id="pdfExtractedSummary" style="font-size:0.95rem;line-height:1.6;color:var(--text-body);margin-bottom:18px;"></div>
+            
+            <h4 style="font-size:1.05rem;font-weight:800;color:#14213D;margin-bottom:12px;">⚖️ Violated Statutory Sections Retrieved from Knowledge Base</h4>
+            <div id="pdfSectionsList"></div>
+
+            <h4 style="font-size:1.05rem;font-weight:800;color:#14213D;margin:20px 0 10px;">💡 Legal Terms &amp; Procedures</h4>
+            <div id="pdfGlossaryList"></div>
+
+            <h4 style="font-size:1.05rem;font-weight:800;color:#14213D;margin:20px 0 10px;">🚀 Required Next Steps</h4>
+            <div style="background:#F8FAFD;border:1px solid #E2E8F0;border-radius:10px;padding:16px;font-size:0.9rem;line-height:1.5;">
+              <ol style="padding-left:20px;display:flex;flex-direction:column;gap:8px;">
+                <li><strong>Verify Challan Authenticity:</strong> Log on to the official Parivahan portal at <a href="https://echallan.parivahan.gov.in" target="_blank" style="color:#1F5FE0;font-weight:600;">echallan.parivahan.gov.in</a> and enter your challan number.</li>
+                <li><strong>Compounding / Online Payment:</strong> Settle the fine amount within 60 days via UPI, Net Banking or Card to close the offence before it is referred to court.</li>
+                <li><strong>Contesting or Virtual Court:</strong> If wrongly issued or contesting the charge, file a dispute online or wait for referral to the Virtual Court at <a href="https://vcourts.gov.in" target="_blank" style="color:#1F5FE0;font-weight:600;">vcourts.gov.in</a>.</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 4: ABOUT THE PROJECT -->
+      <section class="screen-view" id="screen-about">
+        <div class="page-title-banner">
+          <div class="title-icon-circle">
+            <span class="material-symbols-rounded">info</span>
+          </div>
+          <div class="title-text-group">
+            <h2 class="page-title">About the Project</h2>
+            <div class="page-subtitle">A Retrieval-Augmented Generation (RAG) assistant for Indian traffic laws</div>
+          </div>
+        </div>
+
+        <!-- 4 Top Cards -->
+        <div class="about-cards-row">
+          <div class="about-card">
+            <div class="about-icon-tile icon-purple">
+              <span class="material-symbols-rounded">menu_book</span>
+            </div>
+            <div class="about-card-title">Knowledge Base</div>
+            <div class="about-card-desc">4 documents, ~37 chunks from trusted web sources</div>
+          </div>
+
+          <div class="about-card">
+            <div class="about-icon-tile icon-green">
+              <span class="material-symbols-rounded">database</span>
+            </div>
+            <div class="about-card-title">Retrieval Method</div>
+            <div class="about-card-desc">Hybrid search: BM25 + FAISS with embeddings</div>
+          </div>
+
+          <div class="about-card">
+            <div class="about-icon-tile icon-orange">
+              <span class="material-symbols-rounded">verified_user</span>
+            </div>
+            <div class="about-card-title">Answerability Check</div>
+            <div class="about-card-desc">Only answers when documents cover the question</div>
+          </div>
+
+          <div class="about-card">
+            <div class="about-icon-tile icon-blue">
+              <span class="material-symbols-rounded">format_quote</span>
+            </div>
+            <div class="about-card-title">Cited Sources</div>
+            <div class="about-card-desc">Shows exact passages with file and section</div>
+          </div>
+        </div>
+
+        <!-- How It Works Section -->
+        <div class="pipeline-section">
+          <div class="pipeline-header">
+            <span class="material-symbols-rounded">settings</span>
+            <h3>How it works</h3>
+          </div>
+
+          <div class="pipeline-flow">
+            <!-- Step 1 -->
+            <div class="pipeline-step-card">
+              <div class="step-icon-tile icon-blue">
+                <span class="material-symbols-rounded">description</span>
+              </div>
+              <div class="step-info">
+                <div class="step-title">1. Ingest</div>
+                <div class="step-desc">Split by heading</div>
+              </div>
+            </div>
+
+            <div class="pipeline-arrow">&rarr;</div>
+
+            <!-- Step 2 -->
+            <div class="pipeline-step-card">
+              <div class="step-icon-tile icon-green">
+                <span class="material-symbols-rounded">search</span>
+              </div>
+              <div class="step-info">
+                <div class="step-title">2. Retrieve</div>
+                <div class="step-desc">BM25 + FAISS</div>
+              </div>
+            </div>
+
+            <div class="pipeline-arrow">&rarr;</div>
+
+            <!-- Step 3 -->
+            <div class="pipeline-step-card">
+              <div class="step-icon-tile icon-orange">
+                <span class="material-symbols-rounded">check_box</span>
+              </div>
+              <div class="step-info">
+                <div class="step-title">3. Check Coverage</div>
+                <div class="step-desc">Call LLM only if covered</div>
+              </div>
+            </div>
+
+            <div class="pipeline-arrow">&rarr;</div>
+
+            <!-- Step 4 -->
+            <div class="pipeline-step-card">
+              <div class="step-icon-tile icon-purple">
+                <span class="material-symbols-rounded">article</span>
+              </div>
+              <div class="step-info">
+                <div class="step-title">4. Generate &amp; Cite</div>
+                <div class="step-desc">Answer with sources</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- 2x2 MULTI-SCREEN SHOWCASE (MOCKUP REPLICA MODE) -->
+  <div class="grid-showcase-container" id="gridShowcaseContainer" style="display: none;">
+    <div class="grid-showcase-header">
+      <div class="showcase-title">Traffic Law &amp; Challan Assistant — 4 Screens Pixel-Perfect Showcase</div>
+      <button class="btn-return-app" onclick="setViewMode('single')">
+        <span class="material-symbols-rounded">arrow_back</span> Return to Interactive App
+      </button>
+    </div>
+
+    <div class="quad-grid">
+      <!-- Quadrant 1: Ask -->
+      <div class="quad-frame">
+        <div class="quad-screen-header">
+          <div class="brand-logo">
+            <div class="traffic-light-icon">
+              <span class="light red"></span>
+              <span class="light yellow"></span>
+              <span class="light green"></span>
+            </div>
+            <span class="brand-text">Traffic Law &amp; Challan Assistant</span>
+          </div>
+          <div class="quad-nav">
+            <span class="q-tab active"><span class="material-symbols-rounded">home</span> Ask</span>
+            <span class="q-tab"><span class="material-symbols-rounded">menu_book</span> Quick Guides</span>
+            <span class="q-tab"><span class="material-symbols-rounded">search</span> Fine Lookup</span>
+            <span class="q-tab"><span class="material-symbols-rounded">info</span> About</span>
+          </div>
+          <div class="quad-states">
+            <span class="material-symbols-rounded">menu_book</span> States (1) ⌵
+          </div>
+        </div>
+        <div class="quad-screen-body quad-ask">
+          <div class="q-hero-left">
+            <div class="hero-badge"><span class="badge-icon">🛡️</span> Your Traffic Law Assistant</div>
+            <h1 class="hero-title">Your <span class="highlight-blue">Traffic Law</span><br>Assistant</h1>
+            <p class="hero-subtitle">Clear answers on traffic fines, licence renewal, e-challans and what to do after an accident, based on official and trusted documents.</p>
+            
+            <div class="ask-card">
+              <div class="input-row">
+                <div class="chat-bubble-badge"><span class="material-symbols-rounded">chat_bubble</span></div>
+                <input type="text" class="ask-input" value="Ask your question about traffic rules, fines, licence, e-challan..." readonly>
+                <span class="material-symbols-rounded mic-icon">mic</span>
+              </div>
+              <div class="submit-row">
+                <button class="btn-primary btn-get-answer"><span class="material-symbols-rounded">send</span> Get Answer</button>
+              </div>
+            </div>
+
+            <div class="examples-section">
+              <div class="examples-label">Try these examples:</div>
+              <div class="examples-grid">
+                <div class="example-card">
+                  <div class="example-icon-tile icon-blue"><span class="material-symbols-rounded">sports_motorsports</span></div>
+                  <span class="example-text">What is the fine for not wearing a helmet?</span>
+                </div>
+                <div class="example-card">
+                  <div class="example-icon-tile icon-green"><span class="material-symbols-rounded">description</span></div>
+                  <span class="example-text">How to renew my driving licence?</span>
+                </div>
+                <div class="example-card">
+                  <div class="example-icon-tile icon-red"><span class="material-symbols-rounded">directions_car</span></div>
+                  <span class="example-text">What to do after an accident?</span>
+                </div>
+                <div class="example-card">
+                  <div class="example-icon-tile icon-purple"><span class="material-symbols-rounded">receipt_long</span></div>
+                  <span class="example-text">How to pay an e-challant?</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="filter-chips-row">
+              <span class="showing-label">Showing:</span>
+              <button class="chip chip-central active">Central</button>
+              <button class="chip chip-state">Tamil Nadu</button>
+              <span class="disclaimer-text">General information, not legal advice. State fines may differ.</span>
+            </div>
+          </div>
+          <div class="q-hero-right">
+            <img src="assets/hero.jpg" alt="Traffic light and car" class="hero-image">
+          </div>
+        </div>
+      </div>
+
+      <!-- Quadrant 2: Quick Guides -->
+      <div class="quad-frame">
+        <div class="quad-screen-header">
+          <div class="brand-logo">
+            <div class="traffic-light-icon">
+              <span class="light red"></span>
+              <span class="light yellow"></span>
+              <span class="light green"></span>
+            </div>
+            <span class="brand-text">Traffic Law &amp; Challan Assistant</span>
+          </div>
+          <div class="quad-nav">
+            <span class="q-tab"><span class="material-symbols-rounded">home</span> Ask</span>
+            <span class="q-tab active"><span class="material-symbols-rounded">menu_book</span> Quick Guides</span>
+            <span class="q-tab"><span class="material-symbols-rounded">search</span> Fine Lookup</span>
+            <span class="q-tab"><span class="material-symbols-rounded">info</span> About</span>
+          </div>
+          <div class="quad-states">
+            <span class="material-symbols-rounded">menu_book</span> States (1) ⌵
+          </div>
+        </div>
+        <div class="quad-screen-body">
+          <div class="page-title-banner">
+            <div class="title-icon-circle"><span class="material-symbols-rounded">menu_book</span></div>
+            <div class="title-text-group">
+              <h2 class="page-title">Quick Guides</h2>
+              <div class="page-subtitle">Get instant answers to common traffic law topics</div>
+            </div>
+          </div>
+          <div class="guides-grid">
+            <div class="guide-card">
+              <div class="guide-icon-box icon-red"><span class="material-symbols-rounded">car_crash</span></div>
+              <h3 class="guide-title">After an Accident</h3>
+              <p class="guide-desc">What to do, Good Samaritan protection, hospital duties</p>
+              <button class="btn-guide-outline">View Guide &rarr;</button>
+            </div>
+            <div class="guide-card">
+              <div class="guide-icon-box icon-green"><span class="material-symbols-rounded">badge</span></div>
+              <h3 class="guide-title">Renew My Licence</h3>
+              <p class="guide-desc">Validity, renewal window, documents required</p>
+              <button class="btn-guide-outline">View Guide &rarr;</button>
+            </div>
+            <div class="guide-card">
+              <div class="guide-icon-box icon-blue"><span class="material-symbols-rounded">receipt_long</span></div>
+              <h3 class="guide-title">E-Challan Process</h3>
+              <p class="guide-desc">How to pay, contest, virtual court, unpaid challans</p>
+              <button class="btn-guide-outline">View Guide &rarr;</button>
+            </div>
+            <div class="guide-card">
+              <div class="guide-icon-box icon-purple"><span class="material-symbols-rounded">menu_book</span></div>
+              <h3 class="guide-title">Traffic Rules &amp; Fines</h3>
+              <p class="guide-desc">Common offences and penalties under the 2019 Act</p>
+              <button class="btn-guide-outline">View Guide &rarr;</button>
+            </div>
+            <div class="guide-card">
+              <div class="guide-icon-box icon-orange"><span class="material-symbols-rounded">sports_motorsports</span></div>
+              <h3 class="guide-title">Helmet &amp; Safety Gear</h3>
+              <p class="guide-desc">Rules, fines and requirements</p>
+              <button class="btn-guide-outline">View Guide &rarr;</button>
+            </div>
+            <div class="guide-card">
+              <div class="guide-icon-box icon-teal"><span class="material-symbols-rounded">airline_seat_recline_normal</span></div>
+              <h3 class="guide-title">Seat Belt Rules</h3>
+              <p class="guide-desc">When required and penalties</p>
+              <button class="btn-guide-outline">View Guide &rarr;</button>
+            </div>
+            <div class="guide-card">
+              <div class="guide-icon-box icon-pink"><span class="material-symbols-rounded">wine_bar</span></div>
+              <h3 class="guide-title">Drunken Driving</h3>
+              <p class="guide-desc">Fines under Section 185 and legal limits</p>
+              <button class="btn-guide-outline">View Guide &rarr;</button>
+            </div>
+            <div class="guide-card">
+              <div class="guide-icon-box icon-amber"><span class="material-symbols-rounded">no_crash</span></div>
+              <h3 class="guide-title">Driving without Licence</h3>
+              <p class="guide-desc">Penalties and consequences</p>
+              <button class="btn-guide-outline">View Guide &rarr;</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quadrant 3: Fine Lookup -->
+      <div class="quad-frame">
+        <div class="quad-screen-header">
+          <div class="brand-logo">
+            <div class="traffic-light-icon">
+              <span class="light red"></span>
+              <span class="light yellow"></span>
+              <span class="light green"></span>
+            </div>
+            <span class="brand-text">Traffic Law &amp; Challan Assistant</span>
+          </div>
+          <div class="quad-nav">
+            <span class="q-tab"><span class="material-symbols-rounded">home</span> Ask</span>
+            <span class="q-tab"><span class="material-symbols-rounded">menu_book</span> Quick Guides</span>
+            <span class="q-tab active"><span class="material-symbols-rounded">search</span> Fine Lookup</span>
+            <span class="q-tab"><span class="material-symbols-rounded">info</span> About</span>
+          </div>
+          <div class="quad-states">
+            <span class="material-symbols-rounded">menu_book</span> States (1) ⌵
+          </div>
+        </div>
+        <div class="quad-screen-body">
+          <div class="page-title-banner">
+            <div class="title-icon-circle"><span class="material-symbols-rounded">search</span></div>
+            <div class="title-text-group">
+              <h2 class="page-title">Traffic Fine Lookup</h2>
+              <div class="page-subtitle">Search fines by offence or section number</div>
+            </div>
+          </div>
+
+          <div class="fine-search-row">
+            <div class="fine-input-box">
+              <span class="material-symbols-rounded search-icon-left">search</span>
+              <input type="text" class="fine-input" placeholder="Search offence (e.g., helmet, drunk driving) or section number...">
+            </div>
+            <button class="btn-primary btn-search-fine"><span class="material-symbols-rounded">search</span> Search</button>
+          </div>
+
+          <div class="table-card">
+            <table class="fine-table">
+              <thead>
+                <tr>
+                  <th style="width: 45px;">#</th>
+                  <th>Offence</th>
+                  <th>Section</th>
+                  <th>Fine (₹)</th>
+                  <th>Other Penalty</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>1</td><td>Not wearing helmet</td><td>194D</td><td>1,000</td><td>3 months licence disqualification</td></tr>
+                <tr><td>2</td><td>Drunken driving</td><td>185</td><td>10,000</td><td>(old penalty ₹2,000)</td></tr>
+                <tr><td>3</td><td>Driving without licence</td><td>181</td><td>5,000</td><td>May be higher for repeat offence</td></tr>
+                <tr><td>4</td><td>Without insurance</td><td>196</td><td>2,000</td><td>/</td></tr>
+                <tr><td>5</td><td>Using mobile phone while driving</td><td>184</td><td>1,000</td><td>/</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quadrant 4: About -->
+      <div class="quad-frame">
+        <div class="quad-screen-header">
+          <div class="brand-logo">
+            <div class="traffic-light-icon">
+              <span class="light red"></span>
+              <span class="light yellow"></span>
+              <span class="light green"></span>
+            </div>
+            <span class="brand-text">Traffic Law &amp; Challan Assistant</span>
+          </div>
+          <div class="quad-nav">
+            <span class="q-tab"><span class="material-symbols-rounded">home</span> Ask</span>
+            <span class="q-tab"><span class="material-symbols-rounded">menu_book</span> Quick Guides</span>
+            <span class="q-tab"><span class="material-symbols-rounded">search</span> Fine Lookup</span>
+            <span class="q-tab active"><span class="material-symbols-rounded">info</span> About</span>
+          </div>
+        </div>
+        <div class="quad-screen-body">
+          <div class="page-title-banner">
+            <div class="title-icon-circle"><span class="material-symbols-rounded">info</span></div>
+            <div class="title-text-group">
+              <h2 class="page-title">About the Project</h2>
+              <div class="page-subtitle">A Retrieval-Augmented Generation (RAG) assistant for Indian traffic laws</div>
+            </div>
+          </div>
+
+          <div class="about-cards-row">
+            <div class="about-card">
+              <div class="about-icon-tile icon-purple"><span class="material-symbols-rounded">menu_book</span></div>
+              <div class="about-card-title">Knowledge Base</div>
+              <div class="about-card-desc">4 documents, ~37 chunks from trusted web sources</div>
+            </div>
+            <div class="about-card">
+              <div class="about-icon-tile icon-green"><span class="material-symbols-rounded">database</span></div>
+              <div class="about-card-title">Retrieval Method</div>
+              <div class="about-card-desc">Hybrid search: BM25 + FAISS with embeddings</div>
+            </div>
+            <div class="about-card">
+              <div class="about-icon-tile icon-orange"><span class="material-symbols-rounded">verified_user</span></div>
+              <div class="about-card-title">Answerability Check</div>
+              <div class="about-card-desc">Only answers when documents cover the question</div>
+            </div>
+            <div class="about-card">
+              <div class="about-icon-tile icon-blue"><span class="material-symbols-rounded">format_quote</span></div>
+              <div class="about-card-title">Cited Sources</div>
+              <div class="about-card-desc">Shows exact passages with file and section</div>
+            </div>
+          </div>
+
+          <div class="pipeline-section">
+            <div class="pipeline-header">
+              <span class="material-symbols-rounded">settings</span>
+              <h3>How it works</h3>
+            </div>
+            <div class="pipeline-flow">
+              <div class="pipeline-step-card">
+                <div class="step-icon-tile icon-blue"><span class="material-symbols-rounded">description</span></div>
+                <div class="step-info"><div class="step-title">1. Ingest</div><div class="step-desc">Split by heading</div></div>
+              </div>
+              <div class="pipeline-arrow">&rarr;</div>
+              <div class="pipeline-step-card">
+                <div class="step-icon-tile icon-green"><span class="material-symbols-rounded">search</span></div>
+                <div class="step-info"><div class="step-title">2. Retrieve</div><div class="step-desc">BM25 + FAISS</div></div>
+              </div>
+              <div class="pipeline-arrow">&rarr;</div>
+              <div class="pipeline-step-card">
+                <div class="step-icon-tile icon-orange"><span class="material-symbols-rounded">check_box</span></div>
+                <div class="step-info"><div class="step-title">3. Check Coverage</div><div class="step-desc">Call LLM only if covered</div></div>
+              </div>
+              <div class="pipeline-arrow">&rarr;</div>
+              <div class="pipeline-step-card">
+                <div class="step-icon-tile icon-purple"><span class="material-symbols-rounded">article</span></div>
+                <div class="step-info"><div class="step-title">4. Generate &amp; Cite</div><div class="step-desc">Answer with sources</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Guide Details Modal -->
+  <div class="modal-overlay" id="guideModal" onclick="closeGuideModal(event)">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <div class="modal-badge-icon" id="modalIcon"></div>
+          <div>
+            <h3 class="modal-title" id="modalTitle">Guide Title</h3>
+            <div class="modal-subtitle" id="modalSubtitle">Subtitle</div>
+          </div>
+        </div>
+        <button class="modal-close" onclick="closeGuideModal()">&times;</button>
+      </div>
+      <div class="modal-body" id="modalBody">
+        <!-- Injected dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
